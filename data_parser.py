@@ -1,5 +1,5 @@
 __author__ = 'haotian'
-
+import numpy as np
 
 def parse(filename, separator=','):
     """
@@ -77,13 +77,15 @@ class Data:
         self.__y_feature = feature
         return True
 
-    def add_filter(self, feature, operator, threshold):
+    #include features satisfying (operator,threshold) in filtered_data
+    def add_inclusive_filter(self, feature, operator, threshold):
         if feature not in self.__features:
             print("can't find [{}] in features".format(feature))
             return False
         index = self.__features.index(feature)
-        filtered_data = []
-        for line in self.__filtered_data:
+        if self.__filtered_data == self.__data: filtered_data = []
+        else: filtered_data = self.__filtered_data
+        for line in self.__data:
             if line[index] > threshold and '>' in operator:
                 filtered_data.append(line)
             elif line[index] == threshold and '=' in operator:
@@ -93,7 +95,24 @@ class Data:
         self.__filtered_data = filtered_data
         return True
 
-    def remove_filter(self):
+    #do not include features satisfying (operator,threshold) in filtered_data
+    def add_exclusive_filter(self, feature, operator, threshold):
+        if feature not in self.__features:
+            print("can't find [{}] in features".format(feature))
+            return False
+        index = self.__features.index(feature)
+        filtered_data = self.__filtered_data
+        for line in self.__data:
+            if line[index] > threshold and '>' in operator:
+                filtered_data.remove(line)
+            elif line[index] == threshold and '=' in operator:
+                filtered_data.remove(line)
+            elif line[index] < threshold and '<' in operator:
+                filtered_data.remove(line)
+        self.__filtered_data = filtered_data
+        return True
+
+    def remove_all_filters(self):
         self.__filtered_data = list(self.__data)
         return True
 
@@ -157,13 +176,13 @@ class Data:
         index_list = [i for i in range(len(self.__features)) if self.__features[i] in features]
         for line in self.__filtered_data:
             output.append([line[i] for i in index_list])
-        return output
+        return np.asarray(output)
 
     def get_x_data(self):
-        return self.get_data(features=self.__x_features)
+        return np.asarray(self.get_data(features=self.__x_features))
 
     def get_y_data(self):
-        return self.get_data(features=self.__y_feature)
+        return np.asarray(self.get_data(features=self.__y_feature))
 
     def __calculate_data_range(self):
         maxes = list(self.__data[0])
