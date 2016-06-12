@@ -17,7 +17,7 @@ def DesImp(model = KernelRidge(alpha= .00139, coef0=1, degree=3, gamma=.518, ker
     descriptorList = ['Cu','Ni','Mn','P', 'Si', 'C', 'Fluence', 'Flux', 'Temperature']
 
     numFolds = 5
-    numIter = 1
+    numIter = 200
     model = model
 
     Xdata = data.get_x_data()
