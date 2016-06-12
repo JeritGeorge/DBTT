@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 import data_parser
@@ -36,6 +38,7 @@ def FlFxExt(model = KernelRidge(alpha= .00139, coef0=1, degree=3, gamma=.518, ke
 
         plt.savefig(savepath.format(plt.gca().get_title()), dpi = 200, bbox_inches='tight')
         plt.show()
+        plt.close()
 
     for x in flux_divisions:
         model = model
@@ -60,3 +63,4 @@ def FlFxExt(model = KernelRidge(alpha= .00139, coef0=1, degree=3, gamma=.518, ke
 
         plt.savefig(savepath.format(plt.gca().get_title()), dpi = 200, bbox_inches='tight')
         plt.show()
+        plt.close()

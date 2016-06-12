@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import data_parser
 import numpy as np
@@ -15,7 +17,7 @@ def DesImp(model = KernelRidge(alpha= .00139, coef0=1, degree=3, gamma=.518, ker
     descriptorList = ['Cu','Ni','Mn','P', 'Si', 'C', 'Fluence', 'Flux', 'Temperature']
 
     numFolds = 5
-    numIter = 200
+    numIter = 1
     model = model
 
     Xdata = data.get_x_data()
@@ -59,12 +61,14 @@ def DesImp(model = KernelRidge(alpha= .00139, coef0=1, degree=3, gamma=.518, ker
         overall_rms_list.append(avgRMS)
         sd_list.append(sd)
 
-    plt.bar(np.arange(9), overall_rms_list, color = 'r', yerr = sd_list)
-    plt.xlabel('Descriptor Removed')
-    plt.ylabel('200x 5-fold RMSE')
-    plt.title('Descriptor Importance')
-    plt.xticklabels(descriptorList)
-    plt.savefig(savepath.format(plt.gca().get_title()), dpi = 200, bbox_inches='tight')
+    fig, ax = plt.subplots()
+    ax.bar(np.arange(9), overall_rms_list, color = 'r', yerr = sd_list)
+    ax.set_xlabel('Descriptor Removed')
+    ax.set_ylabel('200x 5-fold RMSE')
+    ax.set_title('Descriptor Importance')
+    ax.set_xticklabels(descriptorList)
+    fig.savefig(savepath.format(plt.gca().get_title()), dpi = 200, bbox_inches='tight')
     plt.show()
+    plt.close()
 
         

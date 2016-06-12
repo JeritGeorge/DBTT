@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 import data_parser
@@ -31,5 +33,6 @@ def ErrBias(model = KernelRidge(alpha= .00139, coef0=1, degree=3, gamma=.518, ke
         plt.ylabel('Predicted - Actual (Mpa)')
         plt.savefig(savepath.format(plt.gca().get_title()), dpi = 200, bbox_inches='tight')               
         plt.show()
+        plt.close()
 
 
