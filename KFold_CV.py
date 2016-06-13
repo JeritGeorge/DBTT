@@ -99,6 +99,6 @@ model = RandomForestRegressor(n_estimators=100,
 #from sklearn.kernel_ridge import KernelRidge
 #model = KernelRidge(alpha= 0.00139, gamma=0.518, kernel='rbf')
 fold = 5
-run = 2
+run = 200
 #########################################################################
 #cv(model,datapath,savepath,fold,run)
