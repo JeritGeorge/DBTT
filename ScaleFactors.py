@@ -48,11 +48,11 @@ def alloy_cv(model, X, Y, AlloyList):
                 train_index.append(x)
         if len(train_index) == 0 or len(test_index) == 0: continue  # if alloy doesn't exist(x data is empty), then continue
         # fit model to all alloys except the one to be removed
-        model.fit(Xdata[train_index], Ydata[train_index])
+        model.fit(X[train_index], Y[train_index])
 
-        Ypredict = model.predict(Xdata[test_index])
+        Ypredict = model.predict(X[test_index])
 
-        rms = np.sqrt(mean_squared_error(Ypredict, Ydata[test_index]))
+        rms = np.sqrt(mean_squared_error(Ypredict, Y[test_index]))
         rms_list.append(rms)
 
     return np.mean(rms_list)
@@ -70,19 +70,21 @@ Ydata = data.get_y_data().ravel()
 Xdata = data.get_x_data()
 Alloys = data.get_data("Alloy")
 
-for x in range(len(Xdata)):
+for i in range(len(Xdata[:,0])):
     rms_list = []
-    for y in np.arange(0, 5.5, .5):
-        Xdata[:, x] * y
+    for j in np.arange(0, 5.5, .5):
+        newX = np.copy(Xdata)
+        newX[:, i] = newX[:, i] * j
         model = KernelRidge(alpha=.00518, gamma=.518, kernel='laplacian')
-        rms1 = kfold_cv(model, X=Xdata, Y=Ydata, num_folds=5, num_runs=200)
-        rms2 = alloy_cv(model, Xdata, Ydata, Alloys)
+        rms1 = kfold_cv(model, X=newX, Y=Ydata, num_folds=5, num_runs=100)
+        rms2 = alloy_cv(model, newX, Ydata, Alloys)
         rms = rms1 + rms2
+        print(i, j, rms1, rms2,rms)
         rms_list.append(rms)
     plt.scatter(np.arange(0, 5.5, .5), rms_list)
     plt.xlabel("Scale factor")
     plt.ylabel("5-fold + LO Alloy RMSE")
-    plt.title(X[x])
+    plt.title(X[i])
     plt.savefig("../../bardeengraphs/{}.png".format(plt.gca().get_title()), dpi=200, bbox_inches='tight')
     plt.show()
     plt.close()

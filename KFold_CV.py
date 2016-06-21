@@ -1,13 +1,14 @@
+import matplotlib
+matplotlib.use('Agg')
 import numpy as np
 import data_parser
 import matplotlib.pyplot as plt
 from sklearn import cross_validation
 from sklearn.metrics import mean_squared_error
-from sklearn.kernel_ridge import KernelRidge
 
 
-def cv(model, datapath = "../../DBTT_Data.csv", num_folds=5, num_runs=200,
-       X=["N(Cu)", "N(Ni)", "N(Mn)", "N(P)", "N(Si)", "N( C )", "N(log(fluence)", "N(log(flux)", "N(Temp)"],
+def cv(model, datapath, savepath, num_folds=5, num_runs=200,
+       X=["N(Cu)", "N(Ni)", "N(Mn)", "N(P)", "N(log(fluence)", "N(log(flux)", "N(Temp)"],
        Y="delta sigma"):
 
     # get data
@@ -16,6 +17,12 @@ def cv(model, datapath = "../../DBTT_Data.csv", num_folds=5, num_runs=200,
     data.set_y_feature(Y)
     Ydata = data.get_y_data().ravel()
     Xdata = data.get_x_data()
+
+    Y_predicted_best = []
+    Y_predicted_worst = []
+
+    maxRMS = 1
+    minRMS = 100
 
     RMS_List = []
     for n in range(num_runs):
@@ -36,20 +43,68 @@ def cv(model, datapath = "../../DBTT_Data.csv", num_folds=5, num_runs=200,
 
         RMS_List.append(np.mean(K_fold_rms_list))
 
+        if np.mean(K_fold_rms_list) > maxRMS:
+            maxRMS = np.mean(K_fold_rms_list)
+            Y_predicted_worst = Overall_Y_Pred
+
+        if np.mean(K_fold_rms_list) < minRMS:
+            minRMS = np.mean(K_fold_rms_list)
+            Y_predicted_best = Overall_Y_Pred
+
     avgRMS = np.mean(RMS_List)
-    print (avgRMS)
-    return avgRMS
+    medRMS = np.median(RMS_List)
+    sd = np.std(RMS_List)
 
-degrees = range(2,7)
-RMS_List = []
-model = KernelRidge(alpha= 0.00139, gamma=0.518, kernel='polynomial', degree = 4)
-cv(model)
-for degree in degrees:
-    model = KernelRidge(alpha= 0.00139, gamma=0.518, kernel='polynomial', degree = degree)
-    RMS_List.append(cv(model))
+    print("Using {}x {}-Fold CV: ".format(num_runs, num_folds))
+    print("The average RMSE was {:.3f}".format(avgRMS))
+    print("The median RMSE was {:.3f}".format(medRMS))
+    print("The max RMSE was {:.3f}".format(maxRMS))
+    print("The min RMSE was {:.3f}".format(minRMS))
+    print("The std deviation of the RMSE values was {:.3f}".format(sd))
 
-plt.scatter(degrees, RMS_List)
-plt.xlabel("degree of polynomial kernel")
-plt.ylabel("200x 2-fold Mean RMSE")
-plt.savefig("../../polynomial_kernel_degree.png", dpi=200, bbox_inches='tight')
-plt.show()
+    f, ax = plt.subplots(1, 2, figsize = (11,5))
+    ax[0].scatter(Ydata, Y_predicted_best, c='black', s=10)
+    ax[0].plot(ax[0].get_ylim(), ax[0].get_ylim(), ls="--", c=".3")
+    ax[0].set_title('Best Fit')
+    ax[0].text(.1, .88, 'Min RMSE: {:.3f}'.format(minRMS), transform=ax[0].transAxes)
+    ax[0].set_xlabel('Measured (Mpa)')
+    ax[0].set_ylabel('Predicted (Mpa)')
+
+    ax[1].scatter(Ydata, Y_predicted_worst, c='black', s=10)
+    ax[1].plot(ax[1].get_ylim(), ax[1].get_ylim(), ls="--", c=".3")
+    ax[1].set_title('Worst Fit')
+    ax[1].text(.1, .88, 'Max RMSE: {:.3f}'.format(maxRMS), transform=ax[1].transAxes)
+    ax[1].set_xlabel('Measured (Mpa)')
+    ax[1].set_ylabel('Predicted (Mpa)')
+
+    f.tight_layout()
+    f.savefig(savepath.format("cv_best_worst"), dpi=200, bbox_inches='tight')
+    plt.show()
+    plt.close()
+
+
+########################################################################
+# things need to be changed before you run the codes
+datapath = "../../DBTT_Data.csv"
+savepath = "../../{}.png"
+
+# from sklearn import tree
+# model = tree.DecisionTreeRegressor(max_depth=14, min_samples_split=3, min_samples_leaf=1)
+from sklearn.ensemble import RandomForestRegressor
+
+model = RandomForestRegressor(n_estimators=100,
+                              max_features='auto',
+                              max_depth=13,
+                              min_samples_split=3,
+                              min_samples_leaf=1,
+                              min_weight_fraction_leaf=0,
+                              max_leaf_nodes=None,
+                              n_jobs=1)
+from sklearn.kernel_ridge import KernelRidge
+model = KernelRidge(alpha= 0.00139, gamma=0.518, kernel='rbf')
+fold = 5
+run = 200
+#########################################################################
+# cv(model,datapath,savepath,fold,run)
+cv(KernelRidge(alpha= 0.00518, gamma=0.518, kernel='laplacian'), datapath, savepath)
+
