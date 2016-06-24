@@ -37,8 +37,7 @@ def loacv(model=KernelRidge(alpha=.00518, coef0=1, degree=3, gamma=.518, kernel=
 
     print('Mean RMSE: ', np.mean(rms_list))
 
-    # graph rmse vs alloy 
-    ax = plt.gca()
+    # graph rmse vs alloy
     plt.figure(figsize=(10, 4))
     plt.xticks(np.arange(0, max(alloy_list) + 1, 5))
     plt.scatter(alloy_list, rms_list, color='black', s=10)

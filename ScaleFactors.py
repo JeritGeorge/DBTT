@@ -1,14 +1,10 @@
 import numpy as np
-import csv
 import data_parser
 import matplotlib
-
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from sklearn import cross_validation
 from sklearn.metrics import mean_squared_error
-from sklearn.kernel_ridge import KernelRidge
-from matplotlib import cm as cm
 
 
 def kfold_cv(model, X, Y, num_folds=5, num_runs=200):
@@ -31,9 +27,7 @@ def kfold_cv(model, X, Y, num_folds=5, num_runs=200):
 
         RMS_List.append(np.mean(K_fold_rms_list))
 
-    avgRMS = np.mean(RMS_List)
-    # print (avgRMS)
-    return avgRMS
+    return {'rms':np.mean(RMS_List), 'std':np.std(RMS_List)}
 
 
 def alloy_cv(model, X, Y, AlloyList):
@@ -55,36 +49,42 @@ def alloy_cv(model, X, Y, AlloyList):
         rms = np.sqrt(mean_squared_error(Ypredict, Y[test_index]))
         rms_list.append(rms)
 
-    return np.mean(rms_list)
+    return {'rms': np.mean(rms_list), 'std': np.std(rms_list)}
 
 
-datapath = "../../DBTT_Data.csv"
-X = ["N(Cu)", "N(Ni)", "N(Mn)", "N(P)", "N(Si)", "N( C )", "N(log(fluence)", "N(log(flux)", "N(Temp)"]
-Y = "delta sigma"
+def execute (model, data, savepath):
 
-# get data
+    Ydata = data.get_y_data().ravel()
+    Xdata = data.get_x_data()
+    Alloys = data.get_data("Alloy")
+
+    for i in range(len(Xdata[0])):
+        rms_list = []
+        fig, ax = plt.subplots()
+        for j in np.arange(0, 5.5, .5):
+            newX = np.copy(Xdata)
+            newX[:, i] = newX[:, i] * j
+            kfold = kfold_cv(model, X = newX, Y = Ydata, num_folds = 5, num_runs = 200)
+            alloy = alloy_cv(model, newX, Ydata, Alloys)
+            #ax.errorbar(j,kfold['rms'],yerr = kfold['std'], c = 'red', label = '5-fold CV', fmt='o')
+            #ax.errorbar(j, alloy['rms'], yerr = alloy['std'], c = 'blue', label = 'Alloy CV', fmt='o')
+            ax.errorbar(j, kfold['rms'] + alloy['rms'], yerr = kfold['std'] + alloy['std'], c = 'm', fmt='o')
+            print(i, j, kfold['rms'], alloy['rms'], kfold['rms'] + alloy['rms'])
+        ax.set_xlabel("Scale Factor")
+        ax.set_ylabel("RMSE")
+        ax.set_title(X[i])
+        fig.savefig(savepath.format(plt.gca().get_title()), dpi=200, bbox_inches='tight')
+        fig.clf()
+        plt.close()
+
+from sklearn.kernel_ridge import KernelRidge
+model = KernelRidge(alpha = .00518, gamma = .518, kernel = 'laplacian')
+X=["N(Cu)", "N(Ni)", "N(Mn)", "N(P)","N(Si)", "N( C )", "N(log(fluence)", "N(log(flux)", "N(Temp)"]
+Y="delta sigma"
+datapath="../../DBTT_Data.csv"
+savepath='../../bardeengraphs/{}.png'
 data = data_parser.parse(datapath)
 data.set_x_features(X)
 data.set_y_feature(Y)
-Ydata = data.get_y_data().ravel()
-Xdata = data.get_x_data()
-Alloys = data.get_data("Alloy")
 
-for i in range(len(Xdata[:,0])):
-    rms_list = []
-    for j in np.arange(0, 5.5, .5):
-        newX = np.copy(Xdata)
-        newX[:, i] = newX[:, i] * j
-        model = KernelRidge(alpha=.00518, gamma=.518, kernel='laplacian')
-        rms1 = kfold_cv(model, X=newX, Y=Ydata, num_folds=5, num_runs=100)
-        rms2 = alloy_cv(model, newX, Ydata, Alloys)
-        rms = rms1 + rms2
-        print(i, j, rms1, rms2,rms)
-        rms_list.append(rms)
-    plt.scatter(np.arange(0, 5.5, .5), rms_list)
-    plt.xlabel("Scale factor")
-    plt.ylabel("5-fold + LO Alloy RMSE")
-    plt.title(X[i])
-    plt.savefig("../../bardeengraphs/{}.png".format(plt.gca().get_title()), dpi=200, bbox_inches='tight')
-    plt.show()
-    plt.close()
+execute(model, data, savepath)
