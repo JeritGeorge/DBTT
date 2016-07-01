@@ -22,8 +22,8 @@ def desimp(model=KernelRidge(alpha=.00139, gamma=.518, kernel='rbf'),
     numIter = 200
     model = model
 
-    Xdata = data.get_x_data()
-    Ydata = data.get_y_data().ravel()
+    Xdata = np.asarray(data.get_x_data())
+    Ydata = np.asarray(data.get_y_data()).ravel()
 
     print("Testing descriptor importance using {}x {} - Fold CV".format(numIter, numFolds))
     print("")

@@ -15,8 +15,8 @@ def cv(model, datapath, savepath, num_folds=5, num_runs=200,
     data = data_parser.parse(datapath)
     data.set_x_features(X)
     data.set_y_feature(Y)
-    Ydata = data.get_y_data().ravel()
-    Xdata = data.get_x_data()
+    Ydata = np.asarray(data.get_y_data()).ravel()
+    Xdata = np.asarray(data.get_x_data())
 
     Y_predicted_best = []
     Y_predicted_worst = []
@@ -81,30 +81,3 @@ def cv(model, datapath, savepath, num_folds=5, num_runs=200,
     f.savefig(savepath.format("cv_best_worst"), dpi=200, bbox_inches='tight')
     plt.show()
     plt.close()
-
-
-########################################################################
-# things need to be changed before you run the codes
-datapath = "../../DBTT_Data.csv"
-savepath = "../../{}.png"
-
-# from sklearn import tree
-# model = tree.DecisionTreeRegressor(max_depth=14, min_samples_split=3, min_samples_leaf=1)
-from sklearn.ensemble import RandomForestRegressor
-
-model = RandomForestRegressor(n_estimators=100,
-                              max_features='auto',
-                              max_depth=13,
-                              min_samples_split=3,
-                              min_samples_leaf=1,
-                              min_weight_fraction_leaf=0,
-                              max_leaf_nodes=None,
-                              n_jobs=1)
-from sklearn.kernel_ridge import KernelRidge
-model = KernelRidge(alpha= 0.00139, gamma=0.518, kernel='rbf')
-fold = 5
-run = 200
-#########################################################################
-# cv(model,datapath,savepath,fold,run)
-cv(KernelRidge(alpha= 0.00518, gamma=0.518, kernel='laplacian'), datapath, savepath)
-

@@ -19,8 +19,8 @@ def errbias(model=KernelRidge(alpha=.00139, coef0=1, degree=3, gamma=.518, kerne
     xlist = np.asarray(data.get_data(descriptors))
 
     model = model
-    model.fit(data.get_x_data(), data.get_y_data().ravel())
-    error = model.predict(data.get_x_data()) - data.get_y_data().ravel()
+    model.fit(data.get_x_data(), np.asarray(data.get_y_data()).ravel())
+    error = model.predict(data.get_x_data()) - np.asarray(data.get_y_data()).ravel()
 
     for x in range(len(descriptors)):
         plt.scatter(xlist[:, x], error, color='black', s=10)

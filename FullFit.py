@@ -18,7 +18,7 @@ def fullfit(model=KernelRidge(alpha=.00139, coef0=1, degree=3, gamma=.518, kerne
     #Ydata_norm = (Ydata - np.mean(Ydata)) / np.std(Ydata)
 
     IVARindices = np.linspace(0, 1463, 1464).astype(int)
-    IVARplusindices = np.linspace(1464, 1506, 43).astype(int)
+    IVARplusindices = np.linspace(1464, 1505, 43).astype(int)
 
     model = model
 
