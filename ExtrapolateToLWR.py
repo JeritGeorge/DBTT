@@ -36,6 +36,6 @@ def lwr(model=KernelRidge(alpha=.00139, gamma=.518, kernel='laplacian'),
     plt.ylabel('Model Predicted (MPa)')
     plt.title('Extrapolate to LWR')
     plt.figtext(.15, .83, 'RMS: %.4f' % (rms), fontsize=14)
-    plt.show()
     plt.savefig(savepath.format(plt.gca().get_title()), dpi=200, bbox_inches='tight')
+    plt.close()
 

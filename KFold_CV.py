@@ -67,6 +67,7 @@ def cv(model, datapath, savepath, num_folds=5, num_runs=200,
     ax[0].plot(ax[0].get_ylim(), ax[0].get_ylim(), ls="--", c=".3")
     ax[0].set_title('Best Fit')
     ax[0].text(.1, .88, 'Min RMSE: {:.3f}'.format(minRMS), transform=ax[0].transAxes)
+    ax[0].text(.1, .83, 'Mean RMSE: {:.3f}'.format(avgRMS), transform=ax[0].transAxes)
     ax[0].set_xlabel('Measured (Mpa)')
     ax[0].set_ylabel('Predicted (Mpa)')
 

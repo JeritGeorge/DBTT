@@ -45,7 +45,7 @@ def loacv(model=KernelRidge(alpha=.00518, coef0=1, degree=3, gamma=.518, kernel=
     ax.plot((0, 59), (0, 0), ls="--", c=".3")
     ax.set_xlabel('Alloy Number')
     ax.set_ylabel('RMSE (Mpa)')
-    ax.set_title('Leave out Alloy RMSE')
+    ax.set_title('Leave out Alloy')
     ax.text(.05, .88, 'Mean RMSE: {:.2f}'.format(np.mean(rms_list)), fontsize=14, transform=ax.transAxes)
     for x in np.argsort(rms_list)[-5:]:
         ax.annotate(s = alloy_list[x],xy = (alloy_list[x], rms_list[x]))

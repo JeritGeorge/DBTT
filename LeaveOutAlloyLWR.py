@@ -1,3 +1,4 @@
+import matplotlib
 import matplotlib.pyplot as plt
 import data_parser
 import numpy as np
@@ -43,13 +44,14 @@ def loalwr(model=KernelRidge(alpha=.00518, coef0=1, degree=3, gamma=.518, kernel
 
 
     # graph rmse vs alloy
+    matplotlib.rcParams.update({'font.size': 15})
     fig, ax = plt.subplots(figsize=(10, 4))
     plt.xticks(np.arange(0, max(alloy_list) + 1, 5))
     ax.scatter(alloy_list, rms_list, color='black', s=10)
     ax.plot((0, 59), (0, 0), ls="--", c=".3")
     ax.set_xlabel('Alloy Number')
     ax.set_ylabel('RMSE (Mpa)')
-    ax.set_title('Leave out Alloy RMSE')
+    ax.set_title('Leave out Alloy LWR')
     ax.text(.05, .88, 'Mean RMSE: {:.2f}'.format(np.mean(rms_list)), fontsize=14, transform=ax.transAxes)
     for x in np.argsort(rms_list)[-5:]:
         ax.annotate(s = alloy_list[x],xy = (alloy_list[x], rms_list[x]))
